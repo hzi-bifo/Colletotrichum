@@ -7,7 +7,8 @@ Author: philipp.muench@helmholtz-hzi.de
 This functions creates a boxplot for one dataset based on a given fuNOG annotation. 
 This boxplod is sorted by descending dN/dS ratio und divided into all, effector and secreded subsets.  
 
-![Alt text](figure.jpeg?raw=true "dN/dS ratio as a function of the log10 p-value")
+![Alt text](figure_lvl1.jpeg?raw=true "boxplod is sorted by descending dN/dS ratio und divided into all, effector and secreded subsets for fuNOG lvl1 ")
+![Alt text](figure_lvl2.jpeg?raw=true "boxplod is sorted by descending dN/dS ratio und divided into all, effector and secreded subsets for fuNOG lvl2")
 
 ### Usuage ###
 Please install this packages:
@@ -27,6 +28,7 @@ annotation <- read.csv2("data/fuNOG_annotation.txt", sep=";", header=T)
 source("create_figure.R")
 
 # creates figure
-fuNOG_figure <- create_figure(c_patho, c_t, annotation)
-print(csep_figure)
+fuNOG_figure_lvl2 <- create_figure(c_patho, fuNOG_lvl="lvl2", fuNOG_annotation=annotation)
+fuNOG_figure_lvl1 <- create_figure(c_patho, fuNOG_lvl="lvl1", fuNOG_annotation=annotation)
+print(fuNOG_figure_lvl2)
 ```
