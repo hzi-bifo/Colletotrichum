@@ -7,7 +7,7 @@
 #' @keywords dnds, plot
 #' @export
 #' @examples  
-#' plot_box_cat_single()
+#' create_figure()
 create_figure <- function(set, sec_list, eff_list, new_eff=T){
   require(ggplot2)
   
