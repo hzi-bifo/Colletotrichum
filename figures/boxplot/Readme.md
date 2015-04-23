@@ -4,6 +4,9 @@ R script and example data for boxplot figure
 **Figure:**
 This functions creates a boxplot for all, effector ans secreted with the old annotation based on the effector colum (EFF) and the secreted column (Yes)
 
+
+![Alt text](figure.png?raw=true)
+
 ### Usuage ###
 Please install this packages:
 ```R

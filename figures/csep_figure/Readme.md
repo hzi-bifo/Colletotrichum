@@ -4,6 +4,8 @@ R script and example data for CSEP figure
 **Figure:**
 dN/dS ratio as a function of the log10 p-value
 
+![Alt text](figure.jpeg?raw=true "dN/dS ratio as a function of the log10 p-value")
+
 ### Usuage ###
 Please install this packages:
 ```R
