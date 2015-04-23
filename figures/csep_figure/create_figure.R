@@ -1,9 +1,10 @@
 #' This functions creates CSEP figure
+#' @author Philipp C. Münch, philipp.muench@helmholtz-hzi.de
 #' @param 
 #' @keywords dnds
 #' @export
 #' @examples 
-csep_figure <- function(patho_set,
+create_figure <- function(patho_set,
                         nonpatho_set,
                         fuNOG_annotation=fuNOG_good){
   require(ggplot2)
@@ -46,13 +47,17 @@ csep_figure <- function(patho_set,
     }
     i <- i + 1 
   }
+  
   df_both <- rbind(eff_a, eff_b)
+  df_both[which(df_both$type =="C*" & df_both$unique==T),]$type <- "C* unique"
+  df_both[which(df_both$type =="C*" & df_both$unique!=T),]$type <- "C* non-unique"
+  df_both[which(df_both$type =="Ct" & df_both$unique==T),]$type <- "Ct unique"
+  df_both[which(df_both$type =="Ct" & df_both$unique!=T),]$type <- "Ct non-unique"
 
-  d <- ggplot(df_both, aes(x= ratio,y=fdr, colour=type, shape=unique))
+  d <- ggplot(df_both, aes(x= ratio,y=fdr, colour=type))
   d <- d + geom_point()  + theme_bw() + scale_y_log10()
   d <- d +  xlab("dN/dS ratio") + ylab("log10 p-value")
   d <- d + geom_hline(yintercept=0.05, alpha=0.2)
- # d <- d + geom_vline(yintercept=mean_a)
- # d <- d + geom_vline(yintercept=mean_b)
+
  return(d)
 }
