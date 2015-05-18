@@ -15,13 +15,16 @@ create_figure <- function(patho_set,
   df_a$ratio <- as.numeric(as.matrix(df_a$ratio))
   eff_a <- df_a[which(df_a$eff_new == T),]
   eff_a <- eff_a[with(eff_a, order(fdr,-ratio)), ]
-  eff_a$type <- "C*"
-  mean_a <- sum(as.numeric(as.matrix(eff_a$sum_pN)), na.rm=T)/sum(as.numeric(as.matrix(eff_a$sum_pS)), na.rm=T)
+  eff_a$sample <- "C*"
+  eff_a$type <- "effector"
+    mean_a <- sum(as.numeric(as.matrix(eff_a$sum_pN)), na.rm=T)/sum(as.numeric(as.matrix(eff_a$sum_pS)), na.rm=T)
   
   # non-effector for background
- # rest_a <- df_a[which(df_a$eff_new != T),]
-#  rest_a <- rest_a[with(rest_a, order(fdr,-ratio)), ]
-#  rest_a$type <- "C* non-effector"
+  rest_a <- df_a[which(df_a$eff_new != T),]
+  rest_a <- rest_a[with(rest_a, order(fdr,-ratio)), ]
+  rest_a$type <- "non-effector"
+  rest_a$sample <- "C*"
+  rest_a$unique <- F
   
   # second set
   df_b <- as.data.frame(nonpatho_set)
@@ -29,13 +32,16 @@ create_figure <- function(patho_set,
   df_b$ratio <- as.numeric(as.matrix(df_b$ratio))
   eff_b <- df_b[which(df_b$eff_new == T),]
   eff_b <- eff_b[with(eff_b, order(fdr,-ratio)), ]
-  eff_b$type <- "Ct"
+  eff_b$type <- "effector"
+  eff_b$sample <- "Ct"
   mean_b <- sum(as.numeric(as.matrix(eff_b$sum_pN)), na.rm=T)/sum(as.numeric(as.matrix(eff_b$sum_pS)), na.rm=T)
 
   # non-effector for background
-#  rest_b <- df_a[which(df_b$eff_new != T),]
-#  rest_b <- rest_b[with(rest_b, order(fdr,-ratio)), ]
-#  rest_b$type <- "Ct non-effector"
+  rest_b <- df_a[which(df_b$eff_new != T),]
+  rest_b <- rest_b[with(rest_b, order(fdr,-ratio)), ]
+  rest_b$type <- "non-effector"
+  rest_b$sample <- "Ct"
+  rest_b$unique <- F
   
   # check for unique in patho_set
   eff_a$unique <- FALSE
@@ -58,24 +64,15 @@ create_figure <- function(patho_set,
     i <- i + 1 
   }
   
-  df_both <- rbind(eff_a, eff_b)
-  if(length(df_both[which(df_both$type =="C*" & df_both$unique==T),]$type) > 0){
-    df_both[which(df_both$type =="C*" & df_both$unique==T),]$type <- "C* unique"
-  }
-  if(length(df_both[which(df_both$type =="C*" & df_both$unique!=T),]$type) > 0){  
-    df_both[which(df_both$type =="C*" & df_both$unique!=T),]$type <- "C* non-unique"
-  }
-  if(length(df_both[which(df_both$type =="Ct" & df_both$unique==T),]$type) > 0){
-    df_both[which(df_both$type =="Ct" & df_both$unique==T),]$type <- "Ct unique" 
-  }  
-  if(length(df_both[which(df_both$type =="Ct" & df_both$unique!=T),]$type) > 0){
-    df_both[which(df_both$type =="Ct" & df_both$unique!=T),]$type <- "Ct non-unique"
-  }
-   # df_both <- rbind(df_both, rest_a, rest_b)
-  d <- ggplot(df_both, aes(x= ratio,y=fdr, colour=type))
-  d <- d + geom_point()  + theme_bw() + scale_y_log10()
-  d <- d +  xlab("dN/dS ratio") + ylab("log10 p-value")
-  d <- d + geom_hline(yintercept=0.05, alpha=0.2)
-
+  df_both_eff <- rbind(eff_a, eff_b)
+  df_both_rest <- rbind(rest_a, rest_b)
+ 
+  d <- ggplot(df_both_eff, aes(x= ratio,y=fdr, colour=type, shape=unique))
+  d <- d + geom_point(data=df_both_rest, alpha=0.1)
+  d <- d + geom_point(alpha=0.4)  + theme_bw() + scale_y_log10()
+  d <- d + xlab("dN/dS ratio") + ylab("log10 p-value")
+  d <- d + facet_grid(. ~ sample)
+  d <- d + geom_hline(yintercept=0.01, alpha=0.2)
+  
  return(d)
 }
