@@ -79,7 +79,7 @@ create_figure <- function(patho_set,
   d <- d + geom_vline(yintercept=0.01, alpha=0.2) 
   d <- d + scale_y_continuous(breaks=c(0,0.2,0.4,0.6,0.8,1))
   d <- d + theme(strip.background = element_rect(color="white", fill="white"),
-                 text = element_text(size=15))
+                 text = element_text(size=18))
 #  d <- d + geom_rug(data=df_both_rest, col=rgb(.5,0,0,alpha=0.01))
 #  d <- d + geom_rug(data=df_both_rest, alpha=0.1, color="grey70")
 #d <- d+ geom_rug(alpha=0.2)
