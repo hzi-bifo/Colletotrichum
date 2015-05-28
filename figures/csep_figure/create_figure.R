@@ -8,7 +8,7 @@ create_figure <- function(patho_set,
                         nonpatho_set,
                         fuNOG_annotation=fuNOG_good){
   require(ggplot2)
-  
+  require(scales)
   # first set
   df_a <- as.data.frame(patho_set)
   df_a$fdr <- as.numeric(as.matrix(df_a$fdr))
@@ -69,12 +69,17 @@ create_figure <- function(patho_set,
   
   df_both_eff[which(df_both_eff$type =="non-unique effector" & df_both_eff$unique==T),]$type <- "unique effector"
 
-  d <- ggplot(df_both_eff, aes(x= ratio,y=fdr, colour=type))
-  d <- d + geom_point(data=df_both_rest, alpha=0.1, color="black")
-  d <- d + geom_point(alpha=0.8)  + theme_bw() + scale_y_log10()
-  d <- d + xlab("dN/dS ratio") + ylab("log10 p-value")
+  d <- ggplot(df_both_eff, aes(x= fdr,y=ratio, colour=type))
+  d <- d + geom_point(data=df_both_rest, alpha=0.1, color="grey70") 
+  d <- d + geom_point(alpha=0.8)  + theme_bw() #+ scale_x_log10(limits=(c(1,1*10^(-68))))
+  d <- d + scale_x_continuous(trans=reverselog_trans(10), limits=c(1,1*10^(-68)))
+  d <- d + ylab("dN/dS ratio") + xlab("log10 p-value") 
   d <- d + facet_grid(. ~ sample)
-  d <- d + geom_hline(yintercept=0.01, alpha=0.2)
-  
- return(d)
+  d <- d + geom_vline(yintercept=0.01, alpha=0.2) 
+  d <- d + scale_y_continuous(breaks=c(0,0.2,0.4,0.6,0.8,1))
+  d <- d + theme(strip.background = element_rect(color="white", fill="white"),
+                 text = element_text(size=15))
+#  d <- d + geom_rug(data=df_both_rest, col=rgb(.5,0,0,alpha=0.01))
+  d <- d + geom_rug(alpha=0.01)
+  return(d)
 }
