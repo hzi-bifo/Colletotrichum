@@ -9,6 +9,7 @@ create_figure <- function(patho_set,
                         fuNOG_annotation=fuNOG_good){
   require(ggplot2)
   require(scales)
+  source("reverselog_trans.R")
   # first set
   df_a <- as.data.frame(patho_set)
   df_a$fdr <- as.numeric(as.matrix(df_a$fdr))
@@ -80,6 +81,8 @@ create_figure <- function(patho_set,
   d <- d + theme(strip.background = element_rect(color="white", fill="white"),
                  text = element_text(size=15))
 #  d <- d + geom_rug(data=df_both_rest, col=rgb(.5,0,0,alpha=0.01))
-  d <- d + geom_rug(alpha=0.01)
+#  d <- d + geom_rug(data=df_both_rest, alpha=0.1, color="grey70")
+#d <- d+ geom_rug(alpha=0.2)
+
   return(d)
 }

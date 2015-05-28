@@ -24,6 +24,6 @@ annotation <- read.csv2("data/fuNOG_annotation.txt", sep=";", header=T)
 source("create_figure.R")
 
 # creates figure
-csep_figure <- create_figure(c_patho, c_t, fuNOG_annotation)
+csep_figure <- create_figure(c_patho, c_t, annotation)
 print(csep_figure)
 ```
