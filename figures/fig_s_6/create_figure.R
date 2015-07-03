@@ -1,19 +1,12 @@
-#' A DndsAnalysis Function
-#' This functions creates a boxplot for one dataset based on a given fuNOG annotation. 
-#' This boxplod is sorted by descending dN/dS ratio und divided into all, effector and secreded subsets.  
-#' @author Philipp C. Münch philipp.muench@helmholtz-hzi.de
-#' @param set A dataset with the columns name ratio, desc, sum_pN, sum_pS, fdr, pvalue, stars
-#' @param fuNOG_annotation A path to fuNOG annotation file with columns gfam and fuNOG. 
-#' @param fuNOG_lvl A character with fuNOG lvl of interest. e.g. "lvl1", or "lvl2"
-#' @param remove Logical, if ture the fuNOG annotations "NA" and "
-#' @keywords dnds
-create_figure <- function(set,
-                                  fuNOG_annotation=fuNOG_good, 
-                                  fuNOG_lvl="lvl2", 
-                                  remove=F,
-                                  custom_annotation=T,
-                                  sec_path="data/secreted_genes_v_gfam.txt",
-                                  eff_path="data/csep_genes_v_gfam.txt"){
+# This boxplod is sorted by descending dN/dS ratio und divided into all, effector and secreded subsets.  
+
+create_figure <- function(set=c_patho,
+                          fuNOG_annotation=annotation, 
+                          fuNOG_lvl="lvl2", 
+                          remove=T,
+                          custom_annotation=T,
+                          sec_path="data/secreted_genes_v_gfam.txt",
+                          eff_path="data/csep_genes_v_gfam.txt"){
   require(ggplot2)
   
   if(custom_annotation){
@@ -74,18 +67,13 @@ create_figure <- function(set,
   
   # create plot 
   d <- ggplot(df, aes(x= reorder(lvl, as.numeric(as.matrix(ratio)), median, order=TRUE),y=ratio, fill=subset))
-  #d <- ggplot(df, aes(factor(lvl),ratio, fill=subset))
   d <- d + geom_boxplot(outlier.size = 1)
   d <- d + scale_fill_manual(name = "Sample", values = c("grey", "#FF6666", "#6699FF"))
-
-  
- # d <- d + geom_point(aes(color=subset), alpha=0.1)
   d <- d + theme_bw() + coord_flip()      
-  
   d <- d + theme(plot.title = element_text(size=15, vjust=1, lineheight=0.6))
   d <- d + ggtitle(paste("Selection on protein families (fuNOG", fuNOG_lvl,")"))
   d <- d + xlab(" ") +  ylab("dN/dS ratio")
- d <- d + theme(legend.justification=c(1,0), legend.position=c(1,0))
+  d <- d + theme(legend.justification=c(1,0), legend.position=c(1,0))
  
   return(d)  
 }
