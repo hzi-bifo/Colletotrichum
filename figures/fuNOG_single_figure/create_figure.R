@@ -75,15 +75,18 @@ create_figure <- function(set,
   # create plot 
   d <- ggplot(df, aes(x= reorder(lvl, as.numeric(as.matrix(ratio)), median, order=TRUE),y=ratio, fill=subset))
   #d <- ggplot(df, aes(factor(lvl),ratio, fill=subset))
-  d <- d + geom_boxplot( outlier.size = 1) #+ geom_text(data = label.df, label = "***")
+  d <- d + geom_boxplot(outlier.size = 1)
+  d <- d + scale_fill_manual(name = "Sample", values = c("grey", "#FF6666", "#6699FF"))
+
   
  # d <- d + geom_point(aes(color=subset), alpha=0.1)
   d <- d + theme_bw() + coord_flip()      
   
   d <- d + theme(plot.title = element_text(size=15, vjust=1, lineheight=0.6))
-  d <- d + ggtitle(paste("fuNOG", fuNOG_lvl))
-  d <- d + xlab(paste("fuNOG categories on", fuNOG_lvl)) +  ylab("ratio")
-  
+  d <- d + ggtitle(paste("Selection on protein families (fuNOG", fuNOG_lvl,")"))
+  d <- d + xlab(" ") +  ylab("dN/dS ratio")
+ d <- d + theme(legend.justification=c(1,0), legend.position=c(1,0))
+ 
   return(d)  
 }
 
