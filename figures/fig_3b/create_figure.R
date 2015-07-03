@@ -1,16 +1,12 @@
-#' This functions creates CSEP figure
-#' @author Philipp C. Münch, philipp.muench@helmholtz-hzi.de
-#' @param 
-#' @keywords dnds
-#' @export
-#' @examples 
-#' 
+# This functions creates CSEP figure
+
 create_figure <- function(patho_set=c_patho,
-                        nonpatho_set=c_t,
-                        fuNOG_annotation=annotation){
+                          nonpatho_set=c_t,
+                          fuNOG_annotation=annotation){
   require(ggplot2)
   require(scales)
   source("reverselog_trans.R")
+
   # first set
   df_a <- as.data.frame(patho_set)
   df_a$fdr <- as.numeric(as.matrix(df_a$fdr))
@@ -36,6 +32,7 @@ create_figure <- function(patho_set=c_patho,
   eff_b <- eff_b[with(eff_b, order(fdr,-ratio)), ]
   eff_b$type <- "non-unique effector"
   eff_b$sample <- "Ct"
+  
   mean_b <- sum(as.numeric(as.matrix(eff_b$sum_pN)), na.rm=T)/sum(as.numeric(as.matrix(eff_b$sum_pS)), na.rm=T)
 
   # non-effector for background
@@ -55,6 +52,7 @@ create_figure <- function(patho_set=c_patho,
     }
     i <- i + 1 
   }
+ 
   # check for unique in patho_set
   eff_b$unique <- FALSE
   i <- 1
@@ -81,9 +79,7 @@ create_figure <- function(patho_set=c_patho,
   d <- d + scale_y_continuous(breaks=c(0,0.2,0.4,0.6,0.8,1))
   d <- d + theme(strip.background = element_rect(color="white", fill="white"),
                  text = element_text(size=18))
-#  d <- d + geom_rug(data=df_both_rest, col=rgb(.5,0,0,alpha=0.01))
-#  d <- d + geom_rug(data=df_both_rest, alpha=0.1, color="grey70")
-#d <- d+ geom_rug(alpha=0.2)
-
+  d <- d + theme(legend.justification=c(1,0), legend.position=c(1,0))
+  d <- d + scale_fill_manual(name = "", values = c("blue", "#6699FF"))
   return(d)
 }
