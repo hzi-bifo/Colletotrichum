@@ -1,10 +1,12 @@
 # CSEP Figure
-R script and example data for CSEP figure
+R script and example data for figure 3b
 
 **Figure:**
-dN/dS ratio as a function of the log10 p-value
+CSEP gene families with evidence of positive selection (grey line:
+p=0.05) in five pathogenic Colletotrichum species (left) compared to five C. tofieldiae isolates (right).
+The CSEPs that are shared or unique to each set are highlighted in red and blue, respectively.
 
-![Alt text](figure.jpeg?raw=true "dN/dS ratio as a function of the log10 p-value")
+![Alt text](figure.jpeg?raw=true "fig3b")
 
 ### Usuage ###
 Please install this packages:
