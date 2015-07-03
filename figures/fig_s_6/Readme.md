@@ -5,7 +5,7 @@ Author: philipp.muench@helmholtz-hzi.de
 
 
 ![Alt text](figure_lvl1.jpeg?raw=true "boxplod is sorted by descending dN/dS ratio und divided into all, effector and secreded subsets for fuNOG lvl1 ")
-[Alt text](figure_lvl2.jpeg?raw=true "boxplod is sorted by descending dN/dS ratio und divided into all, effector and secreded subsets for fuNOG lvl2")
+![Alt text](figure_lvl2.jpeg?raw=true "boxplod is sorted by descending dN/dS ratio und divided into all, effector and secreded subsets for fuNOG lvl2")
 
 
 ### Generate Figure ###
