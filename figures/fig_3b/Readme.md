@@ -1,18 +1,18 @@
-# CSEP Figure
-R script and example data for CSEP figure
+# Figure 3b
+R script and example data to generate figure 3b
 
-**Figure:**
-dN/dS ratio as a function of the log10 p-value
+![Alt text](figure.jpeg?raw=true "fig3b")
 
-![Alt text](figure.jpeg?raw=true "dN/dS ratio as a function of the log10 p-value")
+*CSEP gene families with evidence of positive selection (grey line:
+p=0.05) in five pathogenic Colletotrichum species (left) compared to five C. tofieldiae isolates (right).
+The CSEPs that are shared or unique to each set are highlighted in red and blue, respectively.*
 
-### Usuage ###
+### Generate figure ###
 Please install this packages:
 ```R
 install.packages("ggplot2")
 ```
 
-### Generate Figure ###
 You can create the files with following code:
 
 ```R
