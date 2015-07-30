@@ -2,7 +2,9 @@
 
 create_figure <- function(patho_set=c_patho,
                           nonpatho_set=c_t,
-                          fuNOG_annotation=annotation){
+                          fuNOG_annotation=annotation,
+                          control_input="data/carbohydrate.txt",
+                          mark_carbo=T){
   require(ggplot2)
   require(scales)
   source("reverselog_trans.R")
@@ -41,7 +43,7 @@ create_figure <- function(patho_set=c_patho,
   rest_b$type <- "non-effector"
   rest_b$sample <- "Ct"
   rest_b$unique <- F
-  
+
   # check for unique in patho_set
   eff_a$unique <- FALSE
   i <- 1
@@ -69,6 +71,19 @@ create_figure <- function(patho_set=c_patho,
   
   df_both_eff[which(df_both_eff$type =="non-unique effector" & df_both_eff$unique==T),]$type <- "unique effector"
 
+  
+  # mark control
+  # control set as background
+  control_list <- read.table(control_input)
+  match_rest <- match(as.character(as.matrix(control_list)), as.character(as.matrix(df_both_rest$name)))
+  match_eff <- match(as.character(as.matrix(control_list)), as.character(as.matrix(df_both_eff$name)))
+  
+  df_both_rest_case_subset <-df_both_rest[match_rest[which(!is.na(match_rest))],]
+  df_both_eff_case_subset <-df_both_eff[match_eff[which(!is.na(match_eff))],]
+  
+  df_both_rest_case_subset$type <- "Carbohydrate"
+  df_both_eff_case_subset$type <- "Carbohydrate"  
+  
   d <- ggplot(df_both_eff, aes(x= fdr,y=ratio, colour=type))
   d <- d + geom_point(data=df_both_rest, alpha=0.1, color="grey70") 
   d <- d + geom_point(alpha=0.8)  + theme_bw() #+ scale_x_log10(limits=(c(1,1*10^(-68))))
@@ -81,5 +96,12 @@ create_figure <- function(patho_set=c_patho,
                  text = element_text(size=18))
   d <- d + theme(legend.justification=c(1,0), legend.position=c(1,0))
   d <- d + scale_fill_manual(name = "", values = c("blue", "#6699FF"))
+ 
+  if (mark_carbo){
+    d <- d + geom_point(data=df_both_rest_case_subset, alpha=0.1, color="red") 
+    d <- d + geom_point(data=df_both_eff_case_subset, alpha=0.1, color="red")
+    d <- d + geom_rug(data=df_both_rest_case_subset, size=0.1) 
+    d <- d + geom_rug(size=0.1)   
+  }
   return(d)
 }

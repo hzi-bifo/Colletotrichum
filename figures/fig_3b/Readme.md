@@ -7,6 +7,9 @@ R script and example data to generate figure 3b
 p=0.05) in five pathogenic Colletotrichum species (left) compared to five C. tofieldiae isolates (right).
 The CSEPs that are shared or unique to each set are highlighted in red and blue, respectively.*
 
+![Alt text](figure_carbohydrate.png?raw=true "fig3b")
+
+
 ### Generate figure ###
 Please install this packages:
 ```R
