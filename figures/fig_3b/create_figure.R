@@ -97,7 +97,19 @@ create_figure <- function(patho_set=c_patho,
 
   # start plot
   d <- ggplot(df_both_eff, aes(x= fdr,y=ratio, colour=type))
-
+  
+  # scale und theme
+  d <- d + scale_x_continuous(trans=reverselog_trans(10), limits=c(1,1*10^(-68)))
+  d <- d + facet_grid(. ~ sample)
+  d <- d + scale_y_continuous(breaks=c(0,0.2,0.4,0.6,0.8,1))
+  d <- d + theme(strip.background = element_rect(color="white", fill="white"),
+                 text = element_text(size=18))
+  
+  # lab and color
+  d <- d + ylab("dN/dS ratio") + xlab("log10 p-value") 
+  d <- d + scale_colour_manual(name="",  
+                               values = c("control"="green", "non-effector"="grey70", "unique effector"="red",
+                                          "non-unique effector"="blue"))
   # point
   d <- d + geom_point(data=df_both_rest, alpha=0.1)
   d <- d + geom_point(alpha=0.8)  + theme_bw() #+ scale_x_log10(limits=(c(1,1*10^(-68))))
@@ -106,27 +118,15 @@ create_figure <- function(patho_set=c_patho,
   # line
   d <- d + geom_vline(yintercept=0.01, alpha=0.2) 
 
-  # scale und theme
-  d <- d + scale_x_continuous(trans=reverselog_trans(10), limits=c(1,1*10^(-68)))
-  d <- d + facet_grid(. ~ sample)
-  d <- d + scale_y_continuous(breaks=c(0,0.2,0.4,0.6,0.8,1))
-  d <- d + theme(strip.background = element_rect(color="white", fill="white"),
-               text = element_text(size=18))
-  d <- d + theme(legend.justification=c(1,0), legend.position=c(1,0))
-  
-  # lab and color
-  d <- d + ylab("dN/dS ratio") + xlab("log10 p-value") 
-  d <- d + scale_colour_manual(name="",  
-                      values = c("control"="green", "non-effector"="grey70", "unique effector"="red",
-                                 "non-unique effector"="blue"))
   if(rug){  
     d <- d + geom_rug(data=df_both_rest, size=0.1) 
     d <- d + geom_rug(data=df_both_rest_control, size=0.1) 
     d <- d + geom_rug(data=df_both_eff, size=0.1)   
     d <- d + geom_rug(size=0.1)   
   } 
+  d <- d + theme(legend.justification=c(1,0), legend.position=c(1,0))
 
-# end plot
+  # end plot
 
   return(d)
 }
