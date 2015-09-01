@@ -4,7 +4,7 @@ create_figure <- function(patho_set=c_patho,
                           nonpatho_set=c_t,
                           fuNOG_annotation=annotation,
                           annotation_quality=0, 
-                          rug=T,
+                          rug=F,
                           control_grep="Carbohydrate"){
   require(ggplot2)
   require(scales)
@@ -90,7 +90,7 @@ create_figure <- function(patho_set=c_patho,
   control_list <- c(as.character(as.matrix(control_c_patho)), as.character(as.matrix(control_c_t)))
   df_both_rest_control <-  df_both_rest[!is.na(match(as.character(as.matrix(df_both_rest$name)),
                                                      as.character(as.matrix(control_list)))),]
-  df_both_rest_control$type <- "control"
+  df_both_rest_control$type <- "Carbohydrate metabolism"
   cat(paste("Control c_patho:", length(as.character(as.matrix(control_c_patho)))))
   cat(paste("Control c_t:", length(as.character(as.matrix(control_c_t)))))
   
@@ -102,13 +102,12 @@ create_figure <- function(patho_set=c_patho,
   d <- d + scale_x_continuous(trans=reverselog_trans(10), limits=c(1,1*10^(-68)))
   d <- d + facet_grid(. ~ sample)
   d <- d + scale_y_continuous(breaks=c(0,0.2,0.4,0.6,0.8,1))
-  d <- d + theme(strip.background = element_rect(color="white", fill="white"),
-                 text = element_text(size=18))
+ 
   
   # lab and color
   d <- d + ylab("dN/dS ratio") + xlab("log10 p-value") 
   d <- d + scale_colour_manual(name="",  
-                               values = c("control"="green", "non-effector"="grey70", "unique effector"="red",
+                               values = c("Carbohydrate metabolism"="green", "non-effector"="grey70", "unique effector"="red",
                                           "non-unique effector"="blue"))
   # point
   d <- d + geom_point(data=df_both_rest, alpha=0.1)
@@ -125,7 +124,8 @@ create_figure <- function(patho_set=c_patho,
     d <- d + geom_rug(size=0.1)   
   } 
   d <- d + theme(legend.justification=c(1,0), legend.position=c(1,0))
-
+  d <- d + theme(strip.background = element_rect(color="white", fill="white"),
+                 text = element_text(size=18))
   # end plot
 
   return(d)
