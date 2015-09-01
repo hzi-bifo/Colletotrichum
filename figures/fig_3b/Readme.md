@@ -23,7 +23,7 @@ You can create the files with following code:
 
 c_patho <- read.csv2("data/set_a.txt", sep=";", header=T)
 c_t <- read.csv2("data/set_b.txt", sep=";", header=T)
-annotation <- read.csv2("data/fuNOG_annotation.txt", sep=";", header=T)
+annotation <- read.csv2("data/annotation_full.txt", header=F)
 source("create_figure.R")
 
 # creates figure

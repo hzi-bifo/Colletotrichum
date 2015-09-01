@@ -3,16 +3,24 @@
 create_figure <- function(patho_set=c_patho,
                           nonpatho_set=c_t,
                           fuNOG_annotation=annotation,
-                          control_input="data/carbohydrate.txt",
-                          mark_carbo=T){
+                          annotation_quality=0, 
+                          rug=T,
+                          control_grep="Carbohydrate"){
   require(ggplot2)
   require(scales)
   source("reverselog_trans.R")
 
-  # first set
+  # filter out annotations based on quality score
+  annotation <- annotation[which(as.numeric(as.matrix(annotation$V3)) > annotation_quality),]
+  
+  # process first set
   df_a <- as.data.frame(patho_set)
   df_a$fdr <- as.numeric(as.matrix(df_a$fdr))
   df_a$ratio <- as.numeric(as.matrix(df_a$ratio))
+  df_a_match <- match(as.character(as.matrix(df_a$name)), as.character(as.matrix(annotation$V1)))   # update annotation
+  df_a$annot_full <- as.character(as.matrix(annotation$V5))[df_a_match]
+
+  # mark effectors
   eff_a <- df_a[which(df_a$eff_new == T),]
   eff_a <- eff_a[with(eff_a, order(fdr,-ratio)), ]
   eff_a$sample <- "C*"
@@ -30,6 +38,10 @@ create_figure <- function(patho_set=c_patho,
   df_b <- as.data.frame(nonpatho_set)
   df_b$fdr <- as.numeric(as.matrix(df_b$fdr))
   df_b$ratio <- as.numeric(as.matrix(df_b$ratio))
+  df_b_match <- match(as.character(as.matrix(df_b$name)), as.character(as.matrix(annotation$V1)))   # update annotation
+  df_b$annot_full <- as.character(as.matrix(annotation$V5))[df_b_match]
+ 
+  # mark effectors
   eff_b <- df_b[which(df_b$eff_new == T),]
   eff_b <- eff_b[with(eff_b, order(fdr,-ratio)), ]
   eff_b$type <- "non-unique effector"
@@ -70,38 +82,51 @@ create_figure <- function(patho_set=c_patho,
   df_both_rest <- rbind(rest_a, rest_b)
   
   df_both_eff[which(df_both_eff$type =="non-unique effector" & df_both_eff$unique==T),]$type <- "unique effector"
+  
+  # control set 
 
+  control_c_patho <- df_a$name[grep(control_grep, as.character(as.matrix(df_a$annot_full)), ignore.case=T)]
+    control_c_t <- df_b$name[grep(control_grep, as.character(as.matrix(df_b$annot_full)), ignore.case=T)]
+  control_list <- c(as.character(as.matrix(control_c_patho)), as.character(as.matrix(control_c_t)))
+  df_both_rest_control <-  df_both_rest[!is.na(match(as.character(as.matrix(df_both_rest$name)),
+                                                     as.character(as.matrix(control_list)))),]
+  df_both_rest_control$type <- "control"
+  cat(paste("Control c_patho:", length(as.character(as.matrix(control_c_patho)))))
+  cat(paste("Control c_t:", length(as.character(as.matrix(control_c_t)))))
   
-  # mark control
-  # control set as background
-  control_list <- read.table(control_input)
-  match_rest <- match(as.character(as.matrix(control_list)), as.character(as.matrix(df_both_rest$name)))
-  match_eff <- match(as.character(as.matrix(control_list)), as.character(as.matrix(df_both_eff$name)))
-  
-  df_both_rest_case_subset <-df_both_rest[match_rest[which(!is.na(match_rest))],]
-  df_both_eff_case_subset <-df_both_eff[match_eff[which(!is.na(match_eff))],]
-  
-  df_both_rest_case_subset$type <- "Carbohydrate"
-  df_both_eff_case_subset$type <- "Carbohydrate"  
-  
+
+  # start plot
   d <- ggplot(df_both_eff, aes(x= fdr,y=ratio, colour=type))
-  d <- d + geom_point(data=df_both_rest, alpha=0.1, color="grey70") 
+
+  # point
+  d <- d + geom_point(data=df_both_rest, alpha=0.1)
   d <- d + geom_point(alpha=0.8)  + theme_bw() #+ scale_x_log10(limits=(c(1,1*10^(-68))))
-  d <- d + scale_x_continuous(trans=reverselog_trans(10), limits=c(1,1*10^(-68)))
-  d <- d + ylab("dN/dS ratio") + xlab("log10 p-value") 
-  d <- d + facet_grid(. ~ sample)
+  d <- d + geom_point(data=df_both_rest_control, alpha=0.1) # control    
+
+  # line
   d <- d + geom_vline(yintercept=0.01, alpha=0.2) 
+
+  # scale und theme
+  d <- d + scale_x_continuous(trans=reverselog_trans(10), limits=c(1,1*10^(-68)))
+  d <- d + facet_grid(. ~ sample)
   d <- d + scale_y_continuous(breaks=c(0,0.2,0.4,0.6,0.8,1))
   d <- d + theme(strip.background = element_rect(color="white", fill="white"),
-                 text = element_text(size=18))
+               text = element_text(size=18))
   d <- d + theme(legend.justification=c(1,0), legend.position=c(1,0))
-  d <- d + scale_fill_manual(name = "", values = c("blue", "#6699FF"))
- 
-  if (mark_carbo){
-    d <- d + geom_point(data=df_both_rest_case_subset, alpha=0.1, color="red") 
-    d <- d + geom_point(data=df_both_eff_case_subset, alpha=0.1, color="red")
-    d <- d + geom_rug(data=df_both_rest_case_subset, size=0.1) 
+  
+  # lab and color
+  d <- d + ylab("dN/dS ratio") + xlab("log10 p-value") 
+  d <- d + scale_colour_manual(name="",  
+                      values = c("control"="green", "non-effector"="grey70", "unique effector"="red",
+                                 "non-unique effector"="blue"))
+  if(rug){  
+    d <- d + geom_rug(data=df_both_rest, size=0.1) 
+    d <- d + geom_rug(data=df_both_rest_control, size=0.1) 
+    d <- d + geom_rug(data=df_both_eff, size=0.1)   
     d <- d + geom_rug(size=0.1)   
-  }
+  } 
+
+# end plot
+
   return(d)
 }
