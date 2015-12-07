@@ -1,4 +1,3 @@
-gFam
 gfam_10036
 gfam_10040
 gfam_10041
