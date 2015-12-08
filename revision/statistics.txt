@@ -1,0 +1,11 @@
+data:  testmat
+p-value < 2.2e-16
+alternative hypothesis: true odds ratio is greater than 1
+95 percent confidence interval:
+ 2.103414      Inf
+sample estimates:
+odds ratio 
+  2.128149 
+
+mean(csep ratio) = 0.3534764
+mean(non-csep ratio) = 0.1660969
