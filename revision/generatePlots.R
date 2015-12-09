@@ -18,7 +18,7 @@ result_mat <- read.table("results/summary/pooled.gap_theshold_0.7.summary.txt_pv
 csep_match <- match(as.character(as.matrix(csep)), as.character(as.matrix(result_mat$name)))
 
 # match gene fam ids
-ssp_match <- match(as.character(as.matrix(csep)), as.character(as.matrix(result_mat$name)))
+ssp_match <- match(as.character(as.matrix(ssp)), as.character(as.matrix(result_mat$name)))
 
 # subset result_mat csep
 result_csep <- result_mat[csep_match[!is.na(csep_match)],]
@@ -27,15 +27,17 @@ result_csep <- result_mat[csep_match[!is.na(csep_match)],]
 result_non_csep <- result_mat[-csep_match[!is.na(csep_match)],]
 
 # subset result_mat non-csep non ssp
-result_non_csep <- result_mat[-csep_match[!is.na(csep_match)],]
-result_non_csep_ssp <- result_non_csep[-ssp_match[!is.na(csep_match)],]
+#result_non_csep <- result_mat[-csep_match[!is.na(csep_match)],]
+#result_non_csep_ssp <- result_non_csep[-ssp_match[!is.na(csep_match)],]
 
 # subset result_mat ssp
+result_ssp<- result_mat[ssp_match[!is.na(ssp_match)],]
 
-# subset result_mat non-
+# mark ssp in matrix
+result_mat$type <- "gene families"
+result_mat[ssp_match[!is.na(ssp_match)],]$type <- "SSP"
 
 # mark csep in matrix
-result_mat$type <- "non-CSEP"
 result_mat[csep_match[!is.na(csep_match)],]$type <- "CSEP"
 
 # fisher test
@@ -65,4 +67,5 @@ e <- e + geom_boxplot(notch = TRUE, outlier.colour = "black", outlier.size = 1) 
 
 # violin plot
 f <- ggplot(result_mat, aes(x=type, y=ratio, colour=type, fill=type)) + theme_bw() + scale_y_log10() + theme_minimal()
-f <- e + geom_violin(trim=FALSE, fill="gray90", colour="black") +  geom_boxplot(width=0.1, outlier.colour = "darkred", outlier.size = 1, colour="black", fill="grey30")  #+ geom_jitter(alpha=0.01)
+f <- f + geom_violin(trim=FALSE, fill="gray90", colour="grey50") +  geom_boxplot(width=0.1, outlier.colour = "grey60", outlier.size = 3, colour="black", fill="grey30")  #+ geom_jitter(alpha=0.01)
+f <- f + labs(x=" ",y="log 10 ratio") 
