@@ -1,4 +1,3 @@
-gFam
 gfam_1
 gfam_10
 gfam_100
