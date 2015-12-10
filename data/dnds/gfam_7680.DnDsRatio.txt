@@ -1,4 +1,4 @@
-all_syn	all_nonSyn	tip_syn	tip_nonSyn	S	N	comparisons
+pos	Sd	Nd	Sd_tip	Nd_tip	S	N	comparisons
 001	0.0	0.0	0.0	0.0	0.0	0.0	0.0
 002	0.0	1.0	0.0	1.0	0.6680000000000001	2.332	1.0
 003	1.0	1.0	1.0	1.0	0.3330000000000002	2.667	1.0
