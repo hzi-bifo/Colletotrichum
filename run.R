@@ -26,4 +26,5 @@ write.table(pooled, file="pooled_0.7_pval.txt",row.names=F, col.names=T, quote=F
 # annotate SSP and CSEP
 pooled_pval_annot <- annotate_csep(pooled_pval)
 figure3 <- violin_plot(pooled_pval_annot)
-figure3
+
+# annotate table 
