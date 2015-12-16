@@ -1,30 +1,36 @@
-# script by Philipp C. Münch
-# philipp.muench@helmholtz-hzi.de
+# check input data
 
-options(warn=-1)
-
-dnds_folder="data/dnds/"
-gap_folder="data/gap/"
-
-source("load_dnds.R")
 source("violin_plot.R")
 source("annotate_csep.R")
 
-# sed -i -e 's/all_syn\tall_nonSyn\ttip_syn\ttip_nonSyn/pos\tSd\tNd\tSd_tip\tNd_tip/g' dnds/gfam_*
+# load data
+set <- read.csv2("/home/muench/Schreibtisch/github_old/dndsAnalysis/project_specific/colletotrichum/figures/boxplot/data/input_data.txt", sep=";", header=T)
 
-# process gfam output of dnds pipeline
-pooled <- load_dnds(in_folder = dnds_folder,
-                                gap_folder = gap_folder,
-                                threshold = 0.7,
-                                filename_ending = 14)
-write.table(pooled, file="pooled_0.7.txt",row.names=F, col.names=F, quote=F, sep=";")
+# subset data
+set_csep <- set[which(set$eff_new==T),]
+set_ssp <- set[which(set$sec_new==T),]
+set_non_csep <- set[which(set$eff_new!=T),]
 
-# statistical test
-pooled_pval <- fisher_test(pooled)
-write.table(pooled, file="pooled_0.7_pval.txt",row.names=F, col.names=T, quote=F, sep=";")
+# print mean values based on mean(ratio)
+cat(paste("all", mean(as.numeric(as.matrix(set$ratio)), na.rm=T),"sd:",sd(as.numeric(as.matrix(set$ratio)), na.rm=T), "\n"))
+cat(paste("csep", mean(as.numeric(as.matrix(set_csep$ratio)), na.rm=T),"sd:", sd(as.numeric(as.matrix(set_csep$ratio)), na.rm=T), "\n"))
+cat(paste("ssp", mean(as.numeric(as.matrix(set_ssp$ratio)), na.rm=T),"sd:", sd(as.numeric(as.matrix(set_ssp$ratio)), na.rm=T), "\n"))
+cat(paste("non-csep", mean(as.numeric(as.matrix(set_non_csep$ratio)), na.rm=T),"sd:", sd(as.numeric(as.matrix(set_non_csep$ratio)), na.rm=T),"\n"))
 
-# annotate SSP and CSEP
-pooled_pval_annot <- annotate_csep(pooled_pval)
-figure3 <- violin_plot(pooled_pval_annot)
+# print mean values based on sum(dN) / sum(dS) over sample
+cat(paste("all*",sum(as.numeric(as.matrix(set$sum_pN)), na.rm=T)/sum(as.numeric(as.matrix(set$sum_pS)), na.rm=T) , "\n"))
+cat(paste("csep*", sum(as.numeric(as.matrix(set_csep$sum_pN)), na.rm=T)/sum(as.numeric(as.matrix(set_csep$sum_pS)), na.rm=T), "\n"))
+cat(paste("ssp*", sum(as.numeric(as.matrix(set_ssp$sum_pN)), na.rm=T)/sum(as.numeric(as.matrix(set_ssp$sum_pS)), na.rm=T), "\n"))
+cat(paste("non-csep*", sum(as.numeric(as.matrix(set_non_csep$sum_pN)), na.rm=T)/sum(as.numeric(as.matrix(set_non_csep$sum_pS)), na.rm=T), "\n"))
 
-# annotate table 
+# create df for plot
+df <- data.frame(ratio=as.numeric(as.matrix(set$ratio)),
+                 type=rep("All", length(as.numeric(as.matrix(set$ratio)))), 
+                 stringsAsFactors=FALSE) 
+
+df[which(set$sec_new==T),]$type <- "Secreted"
+df[which(set$eff_new==T),]$type <- "CSEPs"
+
+figure3 <- violin_plot(df)
+figure3
+
