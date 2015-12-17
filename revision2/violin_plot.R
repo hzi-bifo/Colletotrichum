@@ -25,6 +25,7 @@ violin_plot <- function(df){
   f <- f + scale_y_continuous(breaks=c(0.1,0.01,1), trans="log1p")
   f <- f + theme_bw() + theme_minimal()
   f <- f + scale_fill_manual(values=c("#C2C2C2", "#8A91C5", "#F0DE4B"), guide = FALSE)
-  f <-f + geom_text(x = c(1, 1), y = c(0, 0) , label = c("***", "***") 
+  f <-f + geom_text(x = 2, y = 2, label = "***", colour = "black") 
+  f <-f + geom_text(x = 3, y = 2, label = "***", colour = "red") 
   return(f)
 }
