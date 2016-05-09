@@ -1,36 +1,60 @@
-# check input data
+# script by Philipp C. Münch
+# philipp.muench@helmholtz-hzi.de
 
-source("violin_plot.R")
+options(warn=-1)
+
 source("annotate_csep.R")
+source("violin_plot.R")
+source("funog_boxplot.R")
 
-# load data
-set <- read.csv2("/home/muench/Schreibtisch/github_old/dndsAnalysis/project_specific/colletotrichum/figures/boxplot/data/input_data.txt", sep=";", header=T)
+# load dndsPipe results
+results_file="data/pooled/results/summary/pooled.gap_theshold_0.7.summary.txt_pval.txt"
+results_data <- read.table(results_file, sep=";", header=T)
 
-# subset data
-set_csep <- set[which(set$eff_new==T),]
-set_ssp <- set[which(set$sec_new==T),]
-set_non_csep <- set[which(set$eff_new!=T),]
+# annotate SSP and CSEP
+results_data_annotated <- annotate_csep(results_data)
 
-# print mean values based on mean(ratio)
-cat(paste("all", mean(as.numeric(as.matrix(set$ratio)), na.rm=T),"sd:",sd(as.numeric(as.matrix(set$ratio)), na.rm=T), "\n"))
-cat(paste("csep", mean(as.numeric(as.matrix(set_csep$ratio)), na.rm=T),"sd:", sd(as.numeric(as.matrix(set_csep$ratio)), na.rm=T), "\n"))
-cat(paste("ssp", mean(as.numeric(as.matrix(set_ssp$ratio)), na.rm=T),"sd:", sd(as.numeric(as.matrix(set_ssp$ratio)), na.rm=T), "\n"))
-cat(paste("non-csep", mean(as.numeric(as.matrix(set_non_csep$ratio)), na.rm=T),"sd:", sd(as.numeric(as.matrix(set_non_csep$ratio)), na.rm=T),"\n"))
+# generate figure 3
+figure3 <- violin_plot(results_data_annotated)
+pdf("figure_3.pdf")
+print(figure3)
+dev.off()
 
-# print mean values based on sum(dN) / sum(dS) over sample
-cat(paste("all*",sum(as.numeric(as.matrix(set$sum_pN)), na.rm=T)/sum(as.numeric(as.matrix(set$sum_pS)), na.rm=T) , "\n"))
-cat(paste("csep*", sum(as.numeric(as.matrix(set_csep$sum_pN)), na.rm=T)/sum(as.numeric(as.matrix(set_csep$sum_pS)), na.rm=T), "\n"))
-cat(paste("ssp*", sum(as.numeric(as.matrix(set_ssp$sum_pN)), na.rm=T)/sum(as.numeric(as.matrix(set_ssp$sum_pS)), na.rm=T), "\n"))
-cat(paste("non-csep*", sum(as.numeric(as.matrix(set_non_csep$sum_pN)), na.rm=T)/sum(as.numeric(as.matrix(set_non_csep$sum_pS)), na.rm=T), "\n"))
+# generate figure 6
+annotation <- read.csv2("annotation/fuNOG_annotation.txt", sep=";", header=T)
+figures6 <- funog_boxplot(results_data_annotated, annotation, fuNOG_lvl = "lvl2")
+pdf("figure_6.pdf", width = 8, height = 7)
+print(figures6)
+dev.off()
 
-# create df for plot
-df <- data.frame(ratio=as.numeric(as.matrix(set$ratio)),
-                 type=rep("All", length(as.numeric(as.matrix(set$ratio)))), 
-                 stringsAsFactors=FALSE) 
+# supplementary table
+results_data_annotated$fuNOG_lvl1 <- annotation[match(results_data_annotated$name, annotation$gfam),]$lvl1
+results_data_annotated$fuNOG_lvl2 <- annotation[match(results_data_annotated$name, annotation$gfam),]$lvl2
+results_data_annotated$fuNOG_lvl3 <- annotation[match(results_data_annotated$name, annotation$gfam),]$lvl3
+write.table(results_data_annotated, file="supplementary_table.csv", row.names=F, sep=";", quote=F)
 
-df[which(set$sec_new==T),]$type <- "Secreted"
-df[which(set$eff_new==T),]$type <- "CSEPs"
+# annotate table
+csep_ha <- read.table("annotation/csep_hacquard.csv",se=";", header=F)
+gene2gfam <- read.table("annotation/csep_genes_v_gfam.txt", sep=";", head=T)
+gene2gfam$ratio <- results_data_annotated[match(gene2gfam$gFam, results_data_annotated$name),]$ratio
+csep_ha$dN.dS <- gene2gfam[match(csep_ha$V1, gene2gfam$geneID), ]$ratio
+write.table(csep_ha, file="csep_ha_ratio.csv", row.names=F, sep=";", quote=F)
 
-figure3 <- violin_plot(df)
-figure3
+# mean values and fisher test
+# test if dnds of CSEPs is significant higher then dnds of rest 
+results_data_annotated$ratio <- as.numeric(as.matrix(results_data_annotated$ratio))
+csep_subset <- results_data_annotated[which(results_data_annotated$is.csep == T),]
+ssp_subset <- results_data_annotated[which(results_data_annotated$is.secreted == T),]
+non_csep_subset <- results_data_annotated[which(results_data_annotated$is.csep == F),]
+non_ssp_subset <- results_data_annotated[which(results_data_annotated$is.secreted == F),]
+testmat_csep <- matrix(c(sum(csep_subset$sum_pN, na.rm=T), sum(non_csep_subset$sum_pN, na.rm=T), sum(csep_subset$sum_pS, na.rm=T), sum(non_csep_subset$sum_pS, na.rm=T)),
+                  nrow = 2, dimnames = list(c("CSEPs", "non-CSEPs"),c("sumDn", "sumDs")))
+fisher.test(testmat_csep, alternative = "greater") # p-value < 2.2e-16, OR=2.128149
+cat(paste("mean all:", mean(results_data_annotated$ratio, na.rm=T), "sd:", sd(results_data_annotated$ratio, na.rm=T), "\n"))
+cat(paste("mean CSEPs:", mean(csep_subset$ratio, na.rm=T), "sd:", sd(csep_subset$ratio, na.rm=T), "\n"))
+cat(paste("mean Secreted:", mean(ssp_subset$ratio, na.rm=T), "sd:", sd(ssp_subset$ratio, na.rm=T), "\n"))
 
+# test if dnds of Secreted is significant higher then dnds of rest 
+testmat_ssp <- matrix(c(sum(ssp_subset$sum_pN, na.rm=T), sum(non_ssp_subset$sum_pN, na.rm=T), sum(ssp_subset$sum_pS, na.rm=T), sum(non_ssp_subset$sum_pS, na.rm=T)),
+                  nrow = 2, dimnames = list(c("SSP", "non-SSP"),c("sumDn", "sumDs")))
+fisher.test(testmat_ssp, alternative = "greater") 

@@ -4,7 +4,7 @@
 annotate_csep <- function(result_mat){
   
   # load list of CSEP gene families
-  csep <- read.table("annotation/gfam_csep.txt", header=F)
+  csep <- read.table("annotation/csep_list.txt", header=F)
   
   # load SSP gene families
   ssp <- read.table("annotation/ssp_list.txt", header=F)
@@ -29,30 +29,16 @@ annotate_csep <- function(result_mat){
   result_ssp<- result_mat[ssp_match[!is.na(ssp_match)],]
   
   # mark ssp in matrix
-  result_mat$type <- "gene families"
-  result_mat[ssp_match[!is.na(ssp_match)],]$type <- "SSP"
+  result_mat$type <- "All"
+  result_mat[ssp_match[!is.na(ssp_match)],]$type <- "Secreted"
   
   # mark csep in matrix
-  result_mat[csep_match[!is.na(csep_match)],]$type <- "CSEP"
+  result_mat[csep_match[!is.na(csep_match)],]$type <- "CSEPs"
   
-  # fisher test  CSEP vs rest
-  testmat <- matrix(c(sum(result_csep$sum_pN, na.rm=T), sum(result_non_csep$sum_pN, na.rm=T), sum(result_csep$sum_pS, na.rm=T), sum(result_non_csep$sum_pS, na.rm=T)),
-                    nrow = 2, dimnames = list(c("CSEP", "non-SSP-CSEP"),c("sumDn", "sumDs")))
-  fisher.test(testmat, alternative = "greater") # p-value < 2.2e-16, OR=2.128149
-  
-  # fisher test  SSP vs rest
-  testmat <- matrix(c(sum(result_ssp$sum_pN, na.rm=T), sum(result_non_csep_ssp$sum_pN, na.rm=T), sum(result_ssp$sum_pS, na.rm=T), sum(result_non_csep_ssp$sum_pS, na.rm=T)),
-                    nrow = 2, dimnames = list(c("SSP", "non-SSP+CSEP"),c("sumDn", "sumDs")))
-  fisher.test(testmat, alternative = "greater") # p-value < 2.2e-16, OR=2.128149
-  
-  # add annotation
-  suptable$gfam <- "NA"
-  suptable <- read.table("annotation/csep.txt",se=";", header=T)
-  annottable <- read.table("annotation/gfam2id.txt", sep=";")
-  supmatch <- match(as.character(as.matrix(suptable$GeneID)), as.character(as.matrix(annottable$V2)))
-  suptable$gfam<- annottable[supmatch,]$V1
-  supmatch2 <- match(as.character(as.matrix(suptable$gfam)), as.character(as.matrix(result_mat)))
-  suptable$dN.dS <- result_mat[supmatch2,]$ratio
-  write.table(suptable, file = "annotated_table.txt", quote=F, row.names=F, sep=";")
+  # detailed annotation
+  result_mat$is.secreted <- FALSE
+  result_mat$is.csep <- FALSE
+  result_mat[which(!is.na(match(result_mat$name, csep$V1))),]$is.csep <- "TRUE"
+  result_mat[which(!is.na(match(result_mat$name, ssp$V1))),]$is.secreted <- "TRUE"
   return(result_mat)
 }
