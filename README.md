@@ -1,4 +1,4 @@
-Code and data to reproduce dN/dS analysis of Hacquard et *al.* **Survival Trade-offs in Plant Roots during Colonization by Closely Related Pathogenic and Mutualistic fungi**
+Code and data to reproduce dN/dS analysis of Hacquard et *al.* **Survival trade-offs in plant roots during colonization by closely related beneficial and pathogenic fungi}**
 
 from philipp.muench@helmholtz-hzi.de
 
